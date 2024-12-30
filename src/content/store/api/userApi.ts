@@ -15,7 +15,6 @@ export const userApi = createApi({
         headers: {
             'Content-type': 'application/json',
         },
-        credentials: 'include',
     }),
     tagTypes: ['User', 'Follow', 'Search'],
     /**
@@ -29,7 +28,7 @@ export const userApi = createApi({
         /* -------------------------------------------------------------------------- */
         // UserDetails
         userDetails: builder.query<APIResponse, void>({
-            query: () => 'me',
+            query: () => 'studytime/month/top?&month=12&year=2024',
             providesTags: ['User'],
         }),
     }),

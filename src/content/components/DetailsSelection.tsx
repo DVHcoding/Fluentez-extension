@@ -137,7 +137,9 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
                     See more...
                 </button>
 
-                <div>{data?.user?.username}</div>
+                <div>
+                    <h2>{data?.success}</h2>
+                </div>
             </form>
         </div>,
         document.body

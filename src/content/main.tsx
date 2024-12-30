@@ -19,9 +19,10 @@ document.body.appendChild(root);
 ReactDOM.createRoot(root).render(
     <React.StrictMode>
         <Provider store={store}>
-            <PersistGate loading={<p>Loading...</p>} persistor={persistor}></PersistGate>
+            <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
+                <App />
+            </PersistGate>
         </Provider>
-        <App />
     </React.StrictMode>
 );
 
