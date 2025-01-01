@@ -2,7 +2,7 @@
 // #                                 IMPORT NPM                             #
 // ##########################################################################
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
-import { configureStore, Middleware } from '@reduxjs/toolkit';
+import { configureStore, type Middleware } from '@reduxjs/toolkit';
 import storage from 'redux-persist/lib/storage';
 import { userApi } from './api/userApi';
 import rootReducer from './rootReducer';
