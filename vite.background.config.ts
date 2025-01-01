@@ -14,14 +14,14 @@ export default defineConfig({
   },
   build: {
     watch: isDev ? {} : void 0,
-    outDir: join(__dirname, 'dist/contentScript'),
+    outDir: join(__dirname, 'dist/background'),
     cssCodeSplit: false,
     emptyOutDir: false,
     sourcemap: isDev ? 'inline' : false,
     lib: {
-      entry: join(__dirname, 'src/content/main.tsx'),
-      name: 'content',
-      formats: ['iife'],
+      entry: join(__dirname, 'src/background/main.ts'),
+      name: 'background',
+      formats: ['es'],
     },
     rollupOptions: {
       output: {

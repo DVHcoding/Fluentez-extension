@@ -8,15 +8,6 @@
     },
     "permissions": ["declarativeNetRequest", "declarativeNetRequestWithHostAccess", "scripting", "tabs", "activeTab"],
     "host_permissions": ["https://*/*", "http://*/*"],
-    "declarative_net_request": {
-        "rule_resources": [
-            {
-                "id": "ruleset",
-                "enabled": true,
-                "path": "rules.json"
-            }
-        ]
-    },
     "icons": {
         "16": "vitefavicon.png",
         "48": "vitefavicon.png",
@@ -35,5 +26,9 @@
             "resources": ["vitefavicon.png", "/contentScript/*.css"],
             "matches": ["<all_urls>"]
         }
-    ]
+    ],
+    "background": {
+        "service_worker": "background/index.global.js",
+        "type": "module"
+    }
 }

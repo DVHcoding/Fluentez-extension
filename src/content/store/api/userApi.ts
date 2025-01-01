@@ -2,7 +2,10 @@
 // #                                 IMPORT NPM                             #
 // ##########################################################################
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { APIResponse } from '../../types/user.api.types';
+import type { APIResponse } from '../../types/user.api.types';
+import { responseParse } from '../../../utils/response-transfer';
+import { sendMessage } from 'webext-bridge/content-script';
+import { requestStringify } from '../../../utils/request-transfer';
 
 // ##########################################################################
 // #                           IMPORT Components                            #
@@ -11,9 +14,12 @@ import { APIResponse } from '../../types/user.api.types';
 export const userApi = createApi({
     reducerPath: 'userApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `https://api.fluentez.com/api/v1/`,
+        baseUrl: 'https://api.fluentez.com/api/v1/',
         headers: {
             'Content-type': 'application/json',
+        },
+        async fetchFn(input, init) {
+            return responseParse(await sendMessage('fetch', await requestStringify(input as Request), 'background'));
         },
     }),
     tagTypes: ['User', 'Follow', 'Search'],
