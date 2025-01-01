@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Fluentez-extension",
     "version": "1.0",
-    "description": "",
+    "description": "Chrome extension that allows users to quickly build their vocabulary on the Fluentez website by selecting text anywhere",
     "action": {
         "default_popup": "index.html"
     },
