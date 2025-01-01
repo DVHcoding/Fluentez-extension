@@ -8,7 +8,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 // ##########################################################################
 // #                           IMPORT Components                            #
 // ##########################################################################
-import { Position } from './TextSelection';
+import type { Position } from './TextSelection';
 import { useUserDetailsQuery } from '../store/api/userApi';
 
 interface DetailsProps {
