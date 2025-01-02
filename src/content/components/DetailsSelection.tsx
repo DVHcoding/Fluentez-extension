@@ -1,15 +1,21 @@
 // ##########################################################################
 // #                                 IMPORT NPM                             #
 // ##########################################################################
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Button, Checkbox } from 'antd';
+import { Button, Checkbox, Spin } from 'antd';
 import TextareaAutosize from 'react-textarea-autosize';
+import { LoadingOutlined } from '@ant-design/icons';
 
 // ##########################################################################
 // #                           IMPORT Components                            #
 // ##########################################################################
 import type { Position } from './TextSelection';
-import { useUserDetailsQuery } from '../store/api/userApi';
+import { useGetVocabulariesByUserIdQuery, useUpdateQuickVocabularyMutation } from '../store/api/userApi';
+import styles from './details.module.css';
+import { VocabularyData } from 'content/types/user.api.types';
+import { useAsyncMutation } from '../../hooks/useAsyncMutation';
+import { toastInfo } from '../../Toast/Toasts';
 
 interface DetailsProps {
     position: Position;
@@ -27,11 +33,24 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
     /* ########################################################################## */
     /*                              STATE MANAGEMENT                              */
     /* ########################################################################## */
+    const [page, setPage] = useState<number>(1);
+    const [vocabularies, setVocabularies] = useState<VocabularyData[]>([]);
+    const [selectedVocabulary, setSelectedVocabulary] = useState<string | null>(null);
+    const [vocabulary, setVocabulary] = useState<{ term: string; definition: string }>({ term: '', definition: '' });
 
     /* ########################################################################## */
     /*                                     RTK                                    */
     /* ########################################################################## */
-    const { data } = useUserDetailsQuery();
+    const { data: vocabulariesData, isFetching } = useGetVocabulariesByUserIdQuery(
+        { page, limit: 5 },
+        {
+            // Chức năng: Khi refetchOnReconnect được thiết lập là true, RTK Query sẽ tự động thực hiện lại
+            // request để lấy dữ liệu mới từ server nếu kết nối mạng của người dùng bị mất và sau đó được khôi phục.
+            // Điều này đảm bảo rằng dữ liệu bạn đang làm việc với là cập nhật nhất có thể.
+            refetchOnReconnect: true,
+        }
+    );
+    const [updateQuickVocabulary, updateQuickVocabularyLoading] = useAsyncMutation(useUpdateQuickVocabularyMutation);
 
     /* ########################################################################## */
     /*                                  VARIABLES                                 */
@@ -47,6 +66,25 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
     /* ########################################################################## */
     /*                             FUNCTION MANAGEMENT                            */
     /* ########################################################################## */
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (vocabulary.definition.trim() === '' || vocabulary.term.trim() === '') {
+            toastInfo('Thuật ngữ và định nghĩa không được bỏ trống!');
+            return;
+        }
+
+        if (!selectedVocabulary) {
+            toastInfo('Vui lòng chọn bộ từ vựng để lưu!');
+            return;
+        }
+
+        await updateQuickVocabulary({ vocabulary, vocabularyId: selectedVocabulary });
+    };
+
+    const handleCheckboxChange = (id: string) => {
+        setSelectedVocabulary((prev) => (prev === id ? null : id)); // Nếu chọn lại checkbox đã chọn thì bỏ chọn
+    };
 
     /* ########################################################################## */
     /*                                CUSTOM HOOKS                                */
@@ -55,6 +93,20 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
     /* ########################################################################## */
     /*                                  useEffect                                 */
     /* ########################################################################## */
+    useEffect(() => {
+        if (vocabulariesData) {
+            const ids = vocabulariesData.data.map((item) => item._id);
+            const hasDuplicates = new Set(ids).size !== ids.length;
+            if (hasDuplicates) {
+                console.warn('Duplicate IDs detected');
+            }
+            setVocabularies((prevVocabularies) => [...prevVocabularies, ...vocabulariesData.data]);
+        }
+
+        return () => {
+            setVocabularies([]);
+        };
+    }, [vocabulariesData]);
 
     return createPortal(
         <div
@@ -72,74 +124,96 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
                 transform: 'translate(-50%, -50%)',
                 padding: '10px',
                 zIndex: '9999999999999999',
+                background: 'white',
+                overflow: 'auto',
             }}
             onMouseUp={(event) => {
                 event.stopPropagation();
             }}
-            className="scrollbar-mess overflow-auto bg-white"
         >
-            <form className="phone:w-full relative max-h-[350px] select-none rounded-md bg-white p-4 md:max-w-[536px]">
+            <form className={`${styles.formContainer} ${styles.font_container}`} onSubmit={handleSubmit}>
                 <div>
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" loading={updateQuickVocabularyLoading}>
                         Thêm vào
                     </Button>
                 </div>
 
-                <div className="flex items-end justify-between gap-6">
+                <div className={styles['flex-box']}>
                     {/* Left */}
-                    <div className="w-full">
+                    <div style={{ width: '100%' }}>
                         <TextareaAutosize
-                            className="scrollbar-mess mt-4 w-full resize-none border-b-4 
-                            border-b-green-200 bg-transparent p-1 text-left text-lg text-black
-                            outline-none"
+                            className={styles.textarea}
                             maxRows={3}
                             spellCheck={false}
                             maxLength={500}
                             autoFocus
                             required
+                            onChange={(e) =>
+                                setVocabulary((preData) => ({
+                                    ...preData, // Spread the previous state
+                                    term: e.target.value, // Update the term
+                                }))
+                            }
                         />
-                        <p className="font-sans font-medium uppercase">Thuật ngữ</p>
+                        <p style={{ fontWeight: '500', textTransform: 'uppercase', fontSize: '14px', marginTop: '3px' }}>Thuật ngữ</p>
                     </div>
 
                     {/* Right */}
-                    <div className="w-full">
+                    <div style={{ width: '100%' }}>
                         <TextareaAutosize
-                            className="scrollbar-mess mt-4 w-full resize-none border-b-4 
-                          border-b-green-200 bg-transparent p-1 text-left text-lg text-black
-                            outline-none"
+                            className={styles.textarea}
                             maxRows={3}
                             spellCheck={false}
                             maxLength={500}
                             required
+                            onChange={(e) =>
+                                setVocabulary((preData) => ({
+                                    ...preData,
+                                    definition: e.target.value,
+                                }))
+                            }
                         />
-                        <p className="font-sans font-medium uppercase ">Định nghĩa</p>
+                        <p style={{ fontWeight: '500', textTransform: 'uppercase', fontSize: '14px', marginTop: '3px' }}>Định nghĩa</p>
                     </div>
                 </div>
 
-                <ul className="mt-[10px] flex flex-col gap-[5px]">
-                    <li className="flex items-center gap-[5px]">
-                        <Checkbox />
-                        <span
-                            style={{
-                                fontSize: '15px',
-                                display: '-webkit-box',
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                WebkitLineClamp: '1',
-                            }}
-                        >
-                            Example
-                        </span>
-                    </li>
+                <ul className={styles.list_items}>
+                    {vocabularies.map((items) => (
+                        <li key={items._id}>
+                            <Checkbox checked={selectedVocabulary === items._id} onChange={() => handleCheckboxChange(items._id)} />
+                            <span
+                                style={{
+                                    fontSize: '15px',
+                                    display: '-webkit-box',
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    WebkitLineClamp: '1',
+                                }}
+                            >
+                                {items.title}
+                            </span>
+                        </li>
+                    ))}
                 </ul>
 
-                <button className="mt-2 text-base text-blue-500" type="button">
-                    See more...
-                </button>
-
-                <div>
-                    <h2>{data?.user?.username}</h2>
-                </div>
+                {vocabulariesData?.totalCount &&
+                    vocabularies.length < vocabulariesData.totalCount &&
+                    (isFetching ? (
+                        <Spin indicator={<LoadingOutlined spin />} className="mt-2" />
+                    ) : (
+                        <p
+                            style={{
+                                color: 'rgb(59 130 246 / 1)',
+                                cursor: 'pointer',
+                                marginBlock: '5px',
+                                fontSize: '16px',
+                                paddingBottom: '15px',
+                            }}
+                            onClick={() => setPage((prevPage) => prevPage + 1)}
+                        >
+                            See more...
+                        </p>
+                    ))}
             </form>
         </div>,
         document.body

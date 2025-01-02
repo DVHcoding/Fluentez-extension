@@ -13,7 +13,7 @@
                 {
                     "header": "access-control-allow-methods",
                     "operation": "set",
-                    "value": "get, post, put, delete, options"
+                    "value": "get, post, put, patch, delete, options"
                 },
                 {
                     "header": "access-control-allow-headers",

@@ -7,7 +7,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 // ##########################################################################
 // #                           IMPORT Components                            #
 // ##########################################################################
-import type { APIResponse } from '../../types/user.api.types';
+import type { APIResponse, IGetVocabulariesByUserIdResponse, IUpdateQuickVocabularyPayload } from '../../types/user.api.types';
 import { responseParse } from '../../../utils/response-transfer';
 import { requestStringify } from '../../../utils/request-transfer';
 
@@ -22,7 +22,7 @@ export const userApi = createApi({
             return responseParse(await sendMessage('fetch', await requestStringify(input as Request), 'background'));
         },
     }),
-    tagTypes: ['User'],
+    tagTypes: ['User', 'Vocabularies'],
     /**
      * TagTypes có tác dụng: Nếu call 1 api thì tất cả các api nào có cùng tagTypes sẽ bị gọi lại
      * Nên Những cái k cần thiết gọi lại thì phải tạo ra một tagTypes riêng
@@ -37,7 +37,23 @@ export const userApi = createApi({
             query: () => 'me',
             providesTags: ['User'],
         }),
+        getVocabulariesByUserId: builder.query<IGetVocabulariesByUserIdResponse, { page: number; limit: number }>({
+            query: ({ page, limit }) => `vocabularies?page=${page}&limit=${limit}`,
+            providesTags: ['Vocabularies'],
+        }),
+
+        /* -------------------------------------------------------------------------- */
+        /*                                  MUTATION                                  */
+        /* -------------------------------------------------------------------------- */
+        updateQuickVocabulary: builder.mutation<APIResponse, IUpdateQuickVocabularyPayload>({
+            query: (payload) => ({
+                url: `vocabulary/quick/${payload.vocabularyId}`,
+                method: 'PATCH',
+                body: payload,
+            }),
+            invalidatesTags: ['Vocabularies', 'Vocabularies'],
+        }),
     }),
 });
 
-export const { useUserDetailsQuery } = userApi;
+export const { useUserDetailsQuery, useGetVocabulariesByUserIdQuery, useUpdateQuickVocabularyMutation } = userApi;
