@@ -1,8 +1,12 @@
-
+import { onMessage } from 'webext-bridge/background';
 import { requestParse } from '../utils/request-transfer';
 import { responseStringify } from '../utils/response-transfer';
-import { onMessage } from 'webext-bridge/background';
 
 onMessage('fetch', async ({ data }) => {
-    return responseStringify(await fetch(await requestParse(data as string)))
+    try {
+        return await responseStringify(await fetch(await requestParse(data as string)));
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
 });

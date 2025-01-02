@@ -19,7 +19,12 @@ export const userApi = createApi({
             'Content-type': 'application/json',
         },
         async fetchFn(input, _init) {
-            return responseParse(await sendMessage('fetch', await requestStringify(input as Request), 'background'));
+            try {
+                return await responseParse(await sendMessage('fetch', await requestStringify(input as Request), 'background'));
+            } catch (err) {
+                console.error(err);
+                throw err;
+            }
         },
     }),
     tagTypes: ['User', 'Vocabularies'],

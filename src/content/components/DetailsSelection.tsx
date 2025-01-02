@@ -16,12 +16,19 @@ import styles from './details.module.css';
 import { VocabularyData } from 'content/types/user.api.types';
 import { useAsyncMutation } from '../../hooks/useAsyncMutation';
 import { toastInfo } from '../../Toast/Toasts';
+import { clamp } from '../../logic/clamp';
 
 interface DetailsProps {
     position: Position;
+    selectedText: string;
 }
 
-const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
+const ModalSize = {
+    width: 365,
+    height: 330,
+} as const;
+
+const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText }) => {
     /* ########################################################################## */
     /*                                    HOOKS                                   */
     /* ########################################################################## */
@@ -68,7 +75,6 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
     /* ########################################################################## */
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         if (vocabulary.definition.trim() === '' || vocabulary.term.trim() === '') {
             toastInfo('Thuật ngữ và định nghĩa không được bỏ trống!');
             return;
@@ -80,6 +86,8 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
         }
 
         await updateQuickVocabulary({ vocabulary, vocabularyId: selectedVocabulary });
+        setVocabulary({ term: '', definition: '' });
+        setSelectedVocabulary(null);
     };
 
     const handleCheckboxChange = (id: string) => {
@@ -95,35 +103,54 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
     /* ########################################################################## */
     useEffect(() => {
         if (vocabulariesData) {
-            const ids = vocabulariesData.data.map((item) => item._id);
-            const hasDuplicates = new Set(ids).size !== ids.length;
-            if (hasDuplicates) {
-                console.warn('Duplicate IDs detected');
-            }
-            setVocabularies((prevVocabularies) => [...prevVocabularies, ...vocabulariesData.data]);
-        }
+            const newVocabularies = vocabulariesData.data;
 
+            // Create a set of the current vocabulary IDs to check against
+            const existingVocabularyIds = new Set(vocabularies.map((item) => item._id));
+
+            // Filter out vocabularies that are already present in the state
+            const uniqueVocabularies = newVocabularies.filter((item) => !existingVocabularyIds.has(item._id));
+
+            if (uniqueVocabularies.length > 0) {
+                setVocabularies((prevVocabularies) => [...prevVocabularies, ...uniqueVocabularies]);
+            } else {
+                console.warn('No new vocabularies to add');
+            }
+        }
+    }, [vocabulariesData]);
+
+    useEffect(() => {
+        setVocabulary((preData) => ({ ...preData, term: selectedText }));
+    }, [selectedText]);
+
+    useEffect(() => {
         return () => {
             setVocabularies([]);
         };
-    }, [vocabulariesData]);
+    }, []);
+
+    const top = clamp(
+        position.top - LOGO_CONFIG.OFFSET_TOP - ModalSize.height / 2,
+        0,
+        window.innerHeight - ModalSize.height / 2 /* fuck you is 1/2f */
+    );
+    const left = clamp(position.left - ModalSize.width / 2, 0, innerWidth / 2);
 
     return createPortal(
         <div
             id="Ψdetails"
             style={{
-                position: 'fixed',
-                top: `${position.top - LOGO_CONFIG.OFFSET_TOP}px`,
-                left: `${position.left}px`,
+                position: 'absolute',
+                top: `${top}px`,
+                left: `${left}px`,
                 transition: `opacity ${LOGO_CONFIG.FADE_DURATION}ms`,
                 opacity: 1,
-                width: '365px',
-                height: '330px',
+                width: `${ModalSize.width}px`,
+                height: `${ModalSize.height}px`,
                 boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
                 borderRadius: '8px',
-                transform: 'translate(-50%, -50%)',
                 padding: '10px',
-                zIndex: '9999999999999999',
+                zIndex: '2000',
                 background: 'white',
                 overflow: 'auto',
             }}
@@ -154,6 +181,7 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
                                     term: e.target.value, // Update the term
                                 }))
                             }
+                            value={vocabulary.term}
                         />
                         <p style={{ fontWeight: '500', textTransform: 'uppercase', fontSize: '14px', marginTop: '3px' }}>Thuật ngữ</p>
                     </div>
@@ -172,6 +200,7 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position }) => {
                                     definition: e.target.value,
                                 }))
                             }
+                            value={vocabulary.definition}
                         />
                         <p style={{ fontWeight: '500', textTransform: 'uppercase', fontSize: '14px', marginTop: '3px' }}>Định nghĩa</p>
                     </div>

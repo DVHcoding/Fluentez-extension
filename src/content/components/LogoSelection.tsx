@@ -21,10 +21,10 @@ interface LogoProps {
 // Constants
 const LOGO_CONFIG = {
     SIZE: '20px',
-    OFFSET_TOP: 50,
+    MARGIN_TOP: 7,
     DISPLAY_DURATION: 2000,
     FADE_DURATION: 300,
-    Z_INDEX: 9999,
+    Z_INDEX: 1000,
 };
 
 const LogoSelection: React.FC<LogoProps> = ({ position, onClose, onClick }) => {
@@ -60,8 +60,8 @@ const LogoSelection: React.FC<LogoProps> = ({ position, onClose, onClick }) => {
         <button
             ref={logoRef}
             style={{
-                position: 'fixed',
-                top: `${position.top - LOGO_CONFIG.OFFSET_TOP}px`,
+                position: 'absolute',
+                top: `${position.top + LOGO_CONFIG.MARGIN_TOP}px`,
                 left: `${position.left}px`,
                 zIndex: LOGO_CONFIG.Z_INDEX,
                 transition: `opacity ${LOGO_CONFIG.FADE_DURATION}ms`,

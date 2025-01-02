@@ -28,6 +28,7 @@ const TextSelector: React.FC = () => {
     /* ########################################################################## */
     const [logoPosition, setLogoPosition] = useState<Position | null>(null);
     const [showDetails, setShowDetails] = useState(false);
+    const [selectedText, setSelectedText] = useState('');
 
     /* ########################################################################## */
     /*                                     RTK                                    */
@@ -69,14 +70,29 @@ const TextSelector: React.FC = () => {
             }
 
             try {
-                const range = selection.getRangeAt(0);
-                const rect = range.getBoundingClientRect();
+                const range = selection.getRangeAt(0).cloneRange();
+                range.collapse(false);
 
-                setLogoPosition({
-                    top: rect.top + window.scrollY,
-                    left: rect.left + window.scrollX,
-                });
+                const fake = document.createElement('span');
+                const uid = Math.random().toString(34);
+                fake.id = uid;
+                fake.appendChild(document.createTextNode('\ufeff'));
+                range.insertNode(fake);
+                // use fake element to get offset
+
+                let obj = fake;
+                let left = 0,
+                    top = 0;
+                do {
+                    left += obj.offsetLeft || 0;
+                    top += obj.offsetTop || 0;
+                } while ((obj = obj.offsetParent as HTMLElement));
+
+                fake.remove();
+
+                setLogoPosition({ top, left });
                 setShowDetails(false);
+                setSelectedText(selectedText);
             } catch (error) {
                 console.error('Error handling text selection:', error);
             }
@@ -93,7 +109,7 @@ const TextSelector: React.FC = () => {
             {logoPosition && (
                 <div>
                     <LogoSelection position={logoPosition} onClose={handleLogoClose} onClick={handleLogoClick} />
-                    {showDetails && <DetailsSelection position={logoPosition} />}
+                    {showDetails && <DetailsSelection position={logoPosition} selectedText={selectedText} />}
                 </div>
             )}
         </div>

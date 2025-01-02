@@ -29,6 +29,13 @@
     box-shadow: none;
 }
 
+.textarea:focus,
+.textarea:active {
+    border: none;
+    outline: none;
+    border-bottom: 4px solid rgb(187, 247, 208);
+}
+
 .list_items {
     padding: 0;
     margin-left: 0;
