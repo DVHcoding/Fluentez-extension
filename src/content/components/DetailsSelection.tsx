@@ -36,6 +36,27 @@ const ModalSize = {
     height: 330,
 } as const;
 
+const PhoneticButton = styled.div.withConfig({
+    shouldForwardProp: (prop) => prop !== 'isActive', // Prevent `isActive` from being passed to the DOM element
+})<PhoneticButtonProps>`
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    padding-block: 0.4rem;
+    padding-inline: 0.5rem;
+    font-size: 15px;
+    border: 1px solid ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
+    color: ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        color: white;
+        background-color: ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
+    }
+`;
+
 const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText, userDetails }) => {
     /* ########################################################################## */
     /*                                    HOOKS                                   */
@@ -82,24 +103,6 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText, user
         FADE_DURATION: 300,
         Z_INDEX: 9999,
     };
-    const PhoneticButton = styled.div<PhoneticButtonProps>`
-        display: flex;
-        cursor: pointer;
-        align-items: center;
-        gap: 8px;
-        border-radius: 6px;
-        padding-block: 0.4rem;
-        padding-inline: 0.5rem;
-        font-size: 15px;
-        border: 1px solid ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
-        color: ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
-        transition: all 0.2s ease-in-out;
-
-        &:hover {
-            color: white;
-            background-color: ${(props) => (props.isActive ? '#16a34a' : '#dc2626')};
-        }
-    `;
 
     /* ########################################################################## */
     /*                             FUNCTION MANAGEMENT                            */
