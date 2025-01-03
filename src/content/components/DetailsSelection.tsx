@@ -325,11 +325,12 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText, user
                                 <Checkbox checked={selectedVocabulary === items._id} onChange={() => handleCheckboxChange(items._id)} />
                                 <span
                                     style={{
-                                        fontSize: '15px',
+                                        fontSize: '16px',
                                         display: '-webkit-box',
                                         WebkitBoxOrient: 'vertical',
                                         overflow: 'hidden',
                                         WebkitLineClamp: '1',
+                                        fontFamily: 'Be Vietnam Pro, sans-serif',
                                     }}
                                 >
                                     {items.title}

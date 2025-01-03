@@ -105,6 +105,7 @@ const TextSelector: React.FC = () => {
         };
 
         document.addEventListener('mouseup', handleTextSelection);
+
         return () => {
             document.removeEventListener('mouseup', handleTextSelection);
         };
