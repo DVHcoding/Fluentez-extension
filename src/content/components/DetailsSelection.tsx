@@ -57,6 +57,16 @@ const PhoneticButton = styled.div.withConfig({
     }
 `;
 
+const StyledButton = styled(Button)`
+    background-color: #1677ff;
+    border-color: #1677ff;
+
+    &:hover {
+        background-color: #4096ff;
+        border-color: #4096ff;
+    }
+`;
+
 const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText, userDetails }) => {
     /* ########################################################################## */
     /*                                    HOOKS                                   */
@@ -227,9 +237,9 @@ const DetailsSelection: React.FC<DetailsProps> = ({ position, selectedText, user
             >
                 <form className={`${styles.formContainer} ${styles.font_container}`} onSubmit={handleSubmit}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '5px' }}>
-                        <Button type="primary" htmlType="submit" loading={updateQuickVocabularyLoading}>
+                        <StyledButton type="primary" htmlType="submit" loading={updateQuickVocabularyLoading}>
                             Thêm vào
-                        </Button>
+                        </StyledButton>
 
                         <PhoneticButton
                             isActive={Boolean(phonetic?.data?.soundUk)}
