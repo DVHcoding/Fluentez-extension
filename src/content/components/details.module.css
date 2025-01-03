@@ -1,3 +1,30 @@
+/* Modal.module.css */
+
+:global(.extension-root) {
+    /* Reset all inherited styles */
+    all: initial;
+
+    /* Define base styles */
+    font-family: 'Be Vietnam Pro', sans-serif;
+    color: #000;
+    font-weight: 400;
+}
+
+.scrollbarMess::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.scrollbarMess::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 10px;
+}
+
+.scrollbarMess::-webkit-scrollbar-track {
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
 .formContainer {
     position: relative;
     max-height: 560px;
@@ -15,7 +42,8 @@
 
 .textarea {
     margin-top: 16px;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     resize: none;
     border: none;
     border-bottom: 4px solid rgb(187, 247, 208);
@@ -27,6 +55,7 @@
     color: rgb(0, 0, 0);
     outline: none;
     box-shadow: none;
+    font-family: 'Be Vietnam Pro', sans-serif;
 }
 
 .textarea:focus,

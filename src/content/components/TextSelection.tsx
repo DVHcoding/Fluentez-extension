@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DetailsSelection from './DetailsSelection';
 import LogoSelection from './LogoSelection';
+import { useUserDetailsQuery } from '../../content/store/api/userApi';
 
 export interface Position {
     top: number;
@@ -33,6 +34,7 @@ const TextSelector: React.FC = () => {
     /* ########################################################################## */
     /*                                     RTK                                    */
     /* ########################################################################## */
+    const { data: userDetails, isLoading } = useUserDetailsQuery();
 
     /* ########################################################################## */
     /*                                  VARIABLES                                 */
@@ -60,6 +62,10 @@ const TextSelector: React.FC = () => {
 
     useEffect(() => {
         const handleTextSelection = () => {
+            if (isLoading || !userDetails?.user) {
+                return;
+            }
+
             const selection = window.getSelection();
             const selectedText = selection?.toString().trim();
 
@@ -102,14 +108,14 @@ const TextSelector: React.FC = () => {
         return () => {
             document.removeEventListener('mouseup', handleTextSelection);
         };
-    }, []);
+    }, [userDetails, isLoading]);
 
     return (
         <div>
             {logoPosition && (
                 <div>
                     <LogoSelection position={logoPosition} onClose={handleLogoClose} onClick={handleLogoClick} />
-                    {showDetails && <DetailsSelection position={logoPosition} selectedText={selectedText} />}
+                    {showDetails && <DetailsSelection position={logoPosition} selectedText={selectedText} userDetails={userDetails} />}
                 </div>
             )}
         </div>

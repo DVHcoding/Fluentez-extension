@@ -7,7 +7,12 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 // ##########################################################################
 // #                           IMPORT Components                            #
 // ##########################################################################
-import type { APIResponse, IGetVocabulariesByUserIdResponse, IUpdateQuickVocabularyPayload } from '../../types/user.api.types';
+import type {
+    APIResponse,
+    IGetMeaningWordResponse,
+    IGetVocabulariesByUserIdResponse,
+    IUpdateQuickVocabularyPayload,
+} from '../../types/user.api.types';
 import { responseParse } from '../../../utils/response-transfer';
 import { requestStringify } from '../../../utils/request-transfer';
 
@@ -46,6 +51,9 @@ export const userApi = createApi({
             query: ({ page, limit }) => `vocabularies?page=${page}&limit=${limit}`,
             providesTags: ['Vocabularies'],
         }),
+        getMeaningWord: builder.query<IGetMeaningWordResponse, string>({
+            query: (word) => `/dictation/meaning/${word}`,
+        }),
 
         /* -------------------------------------------------------------------------- */
         /*                                  MUTATION                                  */
@@ -61,4 +69,4 @@ export const userApi = createApi({
     }),
 });
 
-export const { useUserDetailsQuery, useGetVocabulariesByUserIdQuery, useUpdateQuickVocabularyMutation } = userApi;
+export const { useUserDetailsQuery, useGetVocabulariesByUserIdQuery, useGetMeaningWordQuery, useUpdateQuickVocabularyMutation } = userApi;
